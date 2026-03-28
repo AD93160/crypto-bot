@@ -5,8 +5,8 @@ import pandas as pd
 import ta
 from datetime import datetime
 
-TELEGRAM_TOKEN = os.environ.get("8738159038:AAHgt7_wfZBcuTBn9CKeuSnCZt5wl7DrcLg")
-CHAT_ID = os.environ.get("8639724254")
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+CHAT_ID = os.environ.get("CHAT_ID")
 
 # ----------------------------
 # DATA FUNCTIONS
@@ -237,3 +237,12 @@ def send_telegram(message):
 
     response = requests.post(url, data=payload, timeout=10)
     print("Telegram response:", response.text)
+# ----------------------------
+# RUN
+# ----------------------------
+
+if __name__ == "__main__":
+    print("Script started")
+    msg = analyze()
+    print(msg)
+    send_telegram(msg)
