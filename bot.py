@@ -19,16 +19,24 @@ def safe_get(url):
         return None
 
 
-def get_crypto_data(symbol):
-    url = "https://api.binance.com/api/v3/klines"
-    params = {
-        "symbol": symbol,
-        "interval": "1w",
-        "limit": 300
-    }
-
+def get_crypto_data(coin_id):
     try:
+        url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
+        params = {
+            "vs_currency": "usd",
+            "days": 120,
+            "interval": "daily"
+        }
+
         data = requests.get(url, params=params, timeout=10).json()
+
+        prices = [p[1] for p in data["prices"]]
+
+        df = pd.DataFrame(prices, columns=["close"])
+        df["rsi"] = ta.momentum.RSIIndicator(df["close"], window=14).rsi()
+
+        return df
+
     except:
         return None
 
@@ -75,9 +83,9 @@ def save_state(state):
         json.dump(state, f)
 def analyze():
 
-    btc = get_crypto_data("BTCUSDT")
-    eth = get_crypto_data("ETHUSDT")
-
+    btc = get_crypto_data("bitcoin")
+    eth = get_crypto_data("ethereum")
+ 
     if btc is None or eth is None:
         return "❌ Erreur récupération données marché"
 
@@ -232,12 +240,7 @@ def send_telegram(message):
 # RUN
 # ----------------------------
 
-import time
-
 if __name__ == "__main__":
-    print("✅ Bot démarré 24/7")
-    while True:
-        msg = analyze()
-        print(msg)
-        send_telegram(msg)
-        time.sleep(3600)
+    msg = analyze()
+    print(msg)
+    send_telegram(msg)
