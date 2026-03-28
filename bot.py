@@ -228,7 +228,7 @@ def send_telegram(message):
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         payload = {
-            "chat_id": CHAT_ID,
+            "chat_id": 8639724254,
             "text": message
         }
         requests.post(url, data=payload, timeout=10)
