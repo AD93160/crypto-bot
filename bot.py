@@ -5,8 +5,8 @@ import pandas as pd
 import ta
 from datetime import datetime
 
-TELEGRAM_TOKEN = "8738159038:AAGbawLZ0Iri-onL8jFk6w20YSK_hNeSe5c"
-CHAT_ID = "8639724254"
+TELEGRAM_TOKEN = os.environ.get("8738159038:AAGbawLZ0Iri-onL8jFk6w20YSK_hNeSe5c")
+CHAT_ID = os.environ.get("8639724254")
 
 # ----------------------------
 # DATA FUNCTIONS
