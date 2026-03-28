@@ -232,8 +232,12 @@ def send_telegram(message):
 # RUN
 # ----------------------------
 
+import time
+
 if __name__ == "__main__":
-    print("✅ Script lancé")
-    msg = analyze()
-    print(msg)
-    send_telegram(msg)
+    print("✅ Bot démarré 24/7")
+    while True:
+        msg = analyze()
+        print(msg)
+        send_telegram(msg)
+        time.sleep(3600)
