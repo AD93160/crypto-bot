@@ -5,7 +5,7 @@ import pandas as pd
 import ta
 from datetime import datetime
 
-TELEGRAM_TOKEN = os.environ.get("8738159038:AAGbawLZ0Iri-onL8jFk6w20YSK_hNeSe5c")
+TELEGRAM_TOKEN = os.environ.get("8738159038:AAHgt7_wfZBcuTBn9CKeuSnCZt5wl7DrcLg")
 CHAT_ID = os.environ.get("8639724254")
 
 # ----------------------------
@@ -225,16 +225,13 @@ Date: {datetime.now().date()}
 # ----------------------------
 
 def send_telegram(message):
-    try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        url = f"https://api.telegram.org/bot{8738159038:AAHgt7_wfZBcuTBn9CKeuSnCZt5wl7DrcLg}/sendMessage"
         payload = {
             "chat_id": 8639724254,
             "text": message
         }
-        requests.post(url, data=payload, timeout=10)
-    except:
-        pass
-
+    response = requests.post(url, data=payload, timeout=10)
+    print("Telegram response:", response.text)
 
 # ----------------------------
 # RUN
