@@ -225,19 +225,15 @@ Date: {datetime.now().date()}
 # ----------------------------
 
 def send_telegram(message):
-        url = f"https://api.telegram.org/bot{8738159038:AAHgt7_wfZBcuTBn9CKeuSnCZt5wl7DrcLg}/sendMessage"
-        payload = {
-            "chat_id": 8639724254,
-            "text": message
-        }
+    print("Sending telegram...")
+    print("Token exists:", TELEGRAM_TOKEN is not None)
+    print("Chat ID:", CHAT_ID)
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": message
+    }
+
     response = requests.post(url, data=payload, timeout=10)
     print("Telegram response:", response.text)
-
-# ----------------------------
-# RUN
-# ----------------------------
-
-if __name__ == "__main__":
-    msg = analyze()
-    print(msg)
-    send_telegram(msg)
