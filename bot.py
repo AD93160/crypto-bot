@@ -7,7 +7,7 @@ from datetime import datetime
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
-TAO_BUY_PRICE = float(os.environ.get("TAO_BUY_PRICE", "0"))
+RENDER_BUY_PRICE = float(os.environ.get("RENDER_BUY_PRICE", "0"))
 
 STATE_FILE = "market_state.json"
 
@@ -78,19 +78,19 @@ def save_state(state):
 
 
 # ----------------------------
-# TAO TRACKING
+# RENDER TRACKING
 # ----------------------------
 
-def get_tao_report():
-    tao_price = get_current_price("bittensor")
-    if tao_price is None:
-        return "❌ Impossible de récupérer le prix TAO"
+def get_render_report():
+    render_price = get_current_price("render-token")
+    if render_price is None:
+        return "❌ Impossible de récupérer le prix RENDER"
 
-    lines = [f"🤖 TAO/Bittensor: {round(tao_price, 2)}$"]
+    lines = [f"🖥️ RENDER: {round(render_price, 2)}$"]
 
-    if TAO_BUY_PRICE > 0:
-        pct = ((tao_price - TAO_BUY_PRICE) / TAO_BUY_PRICE) * 100
-        lines.append(f"   Prix d'achat: {TAO_BUY_PRICE}$")
+    if RENDER_BUY_PRICE > 0:
+        pct = ((render_price - RENDER_BUY_PRICE) / RENDER_BUY_PRICE) * 100
+        lines.append(f"   Prix d'achat: {RENDER_BUY_PRICE}$")
         lines.append(f"   P&L: {round(pct, 1)}%")
 
         if pct >= 200:
@@ -132,7 +132,7 @@ Checklist :
   ☐ Quelle narrative a le plus performé ce trimestre ?
   ☐ Allouer 50€ à la prochaine narrative
   ☐ Ne pas vendre la position précédente
-  ☐ Vérifier P&L TAO (+200% → sécuriser 50% / -60% → tenir le plan)
+  ☐ Vérifier P&L RENDER (+200% → sécuriser 50% / -60% → tenir le plan)
   ☐ Confirmer DCA BTC/ETH du mois"""
 
 
@@ -184,7 +184,7 @@ def analyze():
     if btc_price < btc_recent_high * 0.8:
         correction_alert = "⚠️ Correction > -20% détectée"
 
-    tao_report = get_tao_report()
+    tao_report = get_render_report()
     quarterly = get_quarterly_report()
 
     allocation = """🎯 DCA mensuel fixe (300€/mois) :
@@ -193,7 +193,7 @@ def analyze():
   • 30€  PAASI — Asie émergente (PEA)
   • 70€  BTC (OKX)
   • 30€  ETH (OKX)
-  • 50€  Narrative trimestrielle → TAO/Bittensor Q2 2026"""
+  • 50€  Narrative trimestrielle → RENDER Q2 2026"""
 
     message = f"""📊 CRYPTO DASHBOARD
 
