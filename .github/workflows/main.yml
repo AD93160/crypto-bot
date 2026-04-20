@@ -25,4 +25,5 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
+          RENDER_BUY_PRICE: ${{ secrets.RENDER_BUY_PRICE }}
         run: python bot.py
