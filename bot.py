@@ -102,6 +102,123 @@ def get_render_report():
 
 
 # ----------------------------
+# NARRATIVE SCORING
+# ----------------------------
+
+CATEGORY_IDS = {
+    "AI": "artificial-intelligence",
+    "RWA": "real-world-assets-rwa",
+    "Layer 2": "layer-2",
+    "DeFi": "decentralized-finance-defi",
+}
+
+
+def get_category_coins(category_id, limit=10):
+    data = safe_get(
+        "https://api.coingecko.com/api/v3/coins/markets",
+        params={
+            "vs_currency": "usd",
+            "category": category_id,
+            "order": "market_cap_desc",
+            "per_page": limit,
+            "page": 1,
+            "price_change_percentage": "7d,30d",
+        },
+    )
+    return data or []
+
+
+def score_coin(coin, fear, phase, altseason):
+    score = 50
+
+    change_7d = coin.get("price_change_percentage_7d_in_currency") or 0
+    change_30d = coin.get("price_change_percentage_30d_in_currency") or 0
+    rank = coin.get("market_cap_rank") or 999
+
+    # Momentum 7j — sweet spot : début de mouvement, pas encore euphorique
+    if 3 <= change_7d <= 25:
+        score += 25
+    elif change_7d > 25:
+        score += 5      # déjà pumped
+    elif change_7d < -15:
+        score -= 20
+    elif change_7d < 0:
+        score -= 10
+
+    # Tendance 30j
+    if change_30d > 10:
+        score += 15
+    elif change_30d > 0:
+        score += 8
+    elif change_30d < -30:
+        score -= 15
+    elif change_30d < 0:
+        score -= 8
+
+    # Phase : en Bear, éviter les small caps
+    if "Bear" in phase and rank > 100:
+        score -= 20
+    if "Bull fort" in phase and rank < 15:
+        score -= 5      # large caps = moins d'upside en bull fort
+
+    # Altseason : booster les alts
+    if altseason == "✅ Probable":
+        score += 10
+
+    # Peur extrême + dip 30j = opportunité d'accumulation
+    if fear and fear < 25 and change_30d < -20:
+        score += 10
+
+    return score
+
+
+def get_narrative_recommendation(fear, phase, altseason):
+    results = {}
+    for narrative, cat_id in CATEGORY_IDS.items():
+        coins = get_category_coins(cat_id)
+        if not coins:
+            continue
+        scored = sorted(
+            [(score_coin(c, fear, phase, altseason), c) for c in coins],
+            reverse=True,
+        )
+        best_score, best = scored[0]
+        results[narrative] = {
+            "name": best["name"],
+            "symbol": best["symbol"].upper(),
+            "price": best["current_price"],
+            "change_7d": best.get("price_change_percentage_7d_in_currency") or 0,
+            "change_30d": best.get("price_change_percentage_30d_in_currency") or 0,
+            "rank": best.get("market_cap_rank"),
+            "score": best_score,
+        }
+    return results
+
+
+def format_narrative_report(fear, phase, altseason):
+    results = get_narrative_recommendation(fear, phase, altseason)
+    if not results:
+        return "❌ Données narratives indisponibles"
+
+    winner_key = max(results, key=lambda k: results[k]["score"])
+    lines = ["🏆 MEILLEURE CRYPTO PAR NARRATIVE"]
+
+    for narrative, d in results.items():
+        star = " ⭐" if narrative == winner_key else ""
+        sign_7d = "+" if d["change_7d"] >= 0 else ""
+        sign_30d = "+" if d["change_30d"] >= 0 else ""
+        lines.append(
+            f"{narrative}{star}: {d['name']} ({d['symbol']})\n"
+            f"   {d['price']}$ | 7j: {sign_7d}{round(d['change_7d'], 1)}% | "
+            f"30j: {sign_30d}{round(d['change_30d'], 1)}%"
+        )
+
+    w = results[winner_key]
+    lines.append(f"\n→ Meilleur choix pour tes 50€ : {w['name']} ({winner_key})")
+    return "\n".join(lines)
+
+
+# ----------------------------
 # QUARTERLY NARRATIVE REPORT
 # ----------------------------
 
@@ -185,6 +302,7 @@ def analyze():
         correction_alert = "⚠️ Correction > -20% détectée"
 
     tao_report = get_render_report()
+    narrative_report = format_narrative_report(fear, phase, altseason)
     quarterly = get_quarterly_report()
 
     allocation = """🎯 DCA mensuel fixe (300€/mois) :
@@ -211,6 +329,8 @@ Phase: {phase}
 {allocation}
 
 {tao_report}
+
+{narrative_report}
 
 Altseason: {altseason}
 {accumulation_alert}
