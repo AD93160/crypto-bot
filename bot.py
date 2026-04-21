@@ -183,10 +183,10 @@ def get_narrative_recommendation(fear, phase, altseason):
         if not coins:
             continue
         scored = sorted(
-            [(score_coin(c, fear, phase, altseason), c) for c in coins],
+            [(score_coin(c, fear, phase, altseason), i, c) for i, c in enumerate(coins)],
             reverse=True,
         )
-        best_score, best = scored[0]
+        best_score, _, best = scored[0]
         results[narrative] = {
             "name": best["name"],
             "symbol": best["symbol"].upper(),
