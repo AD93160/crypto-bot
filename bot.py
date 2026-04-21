@@ -200,26 +200,30 @@ def get_narrative_recommendation(fear, phase, altseason):
 
 
 def format_narrative_report(fear, phase, altseason):
-    results = get_narrative_recommendation(fear, phase, altseason)
-    if not results:
-        return "❌ Données narratives indisponibles"
+    try:
+        results = get_narrative_recommendation(fear, phase, altseason)
+        if not results:
+            return "⚠️ Données narratives indisponibles"
 
-    winner_key = max(results, key=lambda k: results[k]["score"])
-    lines = ["🏆 MEILLEURE CRYPTO PAR NARRATIVE"]
+        winner_key = max(results, key=lambda k: results[k]["score"])
+        lines = ["🏆 MEILLEURE CRYPTO PAR NARRATIVE"]
 
-    for narrative, d in results.items():
-        star = " ⭐" if narrative == winner_key else ""
-        sign_7d = "+" if d["change_7d"] >= 0 else ""
-        sign_30d = "+" if d["change_30d"] >= 0 else ""
-        lines.append(
-            f"{narrative}{star}: {d['name']} ({d['symbol']})\n"
-            f"   {d['price']}$ | 7j: {sign_7d}{round(d['change_7d'], 1)}% | "
-            f"30j: {sign_30d}{round(d['change_30d'], 1)}%"
-        )
+        for narrative, d in results.items():
+            star = " ⭐" if narrative == winner_key else ""
+            sign_7d = "+" if d["change_7d"] >= 0 else ""
+            sign_30d = "+" if d["change_30d"] >= 0 else ""
+            lines.append(
+                f"{narrative}{star}: {d['name']} ({d['symbol']})\n"
+                f"   {d['price']}$ | 7j: {sign_7d}{round(d['change_7d'], 1)}% | "
+                f"30j: {sign_30d}{round(d['change_30d'], 1)}%"
+            )
 
-    w = results[winner_key]
-    lines.append(f"\n→ Meilleur choix pour tes 50€ : {w['name']} ({winner_key})")
-    return "\n".join(lines)
+        w = results[winner_key]
+        lines.append(f"\n→ Meilleur choix pour tes 50€ : {w['name']} ({winner_key})")
+        return "\n".join(lines)
+    except Exception as e:
+        print(f"Narrative scoring error: {e}")
+        return "⚠️ Scoring narratif temporairement indisponible"
 
 
 # ----------------------------
