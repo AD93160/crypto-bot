@@ -182,11 +182,7 @@ def get_narrative_recommendation(fear, phase, altseason):
         coins = get_category_coins(cat_id)
         if not coins:
             continue
-        scored = sorted(
-            [(score_coin(c, fear, phase, altseason), i, c) for i, c in enumerate(coins)],
-            reverse=True,
-        )
-        best_score, _, best = scored[0]
+        best = max(coins, key=lambda c: score_coin(c, fear, phase, altseason))
         results[narrative] = {
             "name": best["name"],
             "symbol": best["symbol"].upper(),
@@ -194,7 +190,7 @@ def get_narrative_recommendation(fear, phase, altseason):
             "change_7d": best.get("price_change_percentage_7d_in_currency") or 0,
             "change_30d": best.get("price_change_percentage_30d_in_currency") or 0,
             "rank": best.get("market_cap_rank"),
-            "score": best_score,
+            "score": score_coin(best, fear, phase, altseason),
         }
     return results
 
