@@ -306,7 +306,11 @@ def analyze():
         correction_alert = "⚠️ Correction > -20% détectée"
 
     tao_report = get_render_report()
-    narrative_report = format_narrative_report(fear, phase, altseason)
+    try:
+        narrative_report = format_narrative_report(fear, phase, altseason)
+    except Exception as e:
+        print(f"Narrative report failed: {e}")
+        narrative_report = "⚠️ Scoring narratif indisponible"
     quarterly = get_quarterly_report()
 
     allocation = """🎯 DCA mensuel fixe (300€/mois) :
