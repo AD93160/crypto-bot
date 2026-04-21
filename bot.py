@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import requests
 import pandas as pd
 import ta
@@ -18,8 +19,10 @@ STATE_FILE = "market_state.json"
 
 def safe_get(url, params=None):
     try:
-        return requests.get(url, params=params, timeout=10).json()
-    except requests.RequestException:
+        resp = requests.get(url, params=params, timeout=10)
+        resp.raise_for_status()
+        return resp.json()
+    except (requests.RequestException, ValueError):
         return None
 
 
@@ -114,6 +117,7 @@ CATEGORY_IDS = {
 
 
 def get_category_coins(category_id, limit=10):
+    time.sleep(1)   # éviter le rate limit CoinGecko
     data = safe_get(
         "https://api.coingecko.com/api/v3/coins/markets",
         params={
@@ -125,7 +129,7 @@ def get_category_coins(category_id, limit=10):
             "price_change_percentage": "7d,30d",
         },
     )
-    return data or []
+    return data if isinstance(data, list) else []
 
 
 def score_coin(coin, fear, phase, altseason):
